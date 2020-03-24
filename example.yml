@@ -1,0 +1,75 @@
+---
+- name: "service-example"
+  hosts: "all"
+
+  vars:
+
+    image_name: "docker.io/library/nginx:latest"
+    image_update: false
+    container_name: "hodgins-example"
+    container_port: "3001"
+
+  handlers:
+
+    - name: "Restart example Service"
+      systemd:
+        name: "{{ container_name }}.service"
+        state: "restarted"
+      become: true
+      tags:
+        - "example"
+        - "container"
+        - "image"
+        - "service"
+
+  tasks:
+
+    - name: "Manage example Image"
+      podman_image:
+        name: "{{ image_name }}"
+        force: "{{ image_update | default(false) }}"
+      become: true
+      notify:
+        - "Restart example Service"
+      tags:
+        - "example"
+        - "image"
+
+    - name: "Manage example Service Configuration"
+      template:
+        src: "example.service.j2"
+        dest: "/etc/systemd/system/{{ container_name }}.service"
+        owner: "root"
+        group: "root"
+        mode: 0644
+      become: true
+      notify:
+        - "Restart example Service"
+      tags:
+        - "example"
+        - "container"
+        - "service"
+
+    - name: "Manage example Service"
+      systemd:
+        name: "{{ container_name }}.service"
+        state: "started"
+        enabled: true
+        daemon_reload: true
+      become: true
+      tags:
+        - "example"
+        - "container"
+        - "service"
+
+    - name: "Manage example Firewall Service"
+      firewalld:
+        port: "{{ container_port }}/tcp"
+        state: "enabled"
+        zone: "public"
+        immediate: true
+        permanent: true
+      become: true
+      tags:
+        - "example"
+        - "firewall"
