@@ -36,7 +36,7 @@ git clone https://github.com/hodgins-project/service-example.git
 Afterwards, you can install the service.
 
 ```
-ansible-playbook -i <path-to-your-inventory> -k -K -u <hodgins-users> example.yml
+ansible-playbook -i <path-to-your-inventory> -k -K -u <hodgins-users> playbooks/example.yml
 ```
 
 ## Usage
